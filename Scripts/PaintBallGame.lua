@@ -32,10 +32,25 @@ function PaintBallGame:server_onFixedUpdate()
 
     for k, respawn in pairs(self.respawns) do
         if respawn.time < sm.game.getCurrentTick() then
-            local newChar = sm.character.createCharacter(respawn.player, respawn.player:getCharacter():getWorld(), sm.vec3.one())
+            local spawnPosition = sm.vec3.one()
+            local yaw = 0
+            local pitch = 0       
+
+            for _, spawn in pairs(g_spawns) do
+                if spawn.color == respawn.color then
+                    spawnPosition = spawn.worldPosition + spawn:getAt() * 0.825
+                    local spawnDirection = -spawn:getUp()
+                    pitch = math.asin( spawnDirection.z )
+                    yaw = math.atan2( spawnDirection.x, -spawnDirection.y )
+                end
+            end
+
+            local newChar = sm.character.createCharacter( respawn.player, respawn.player:getCharacter():getWorld(), spawnPosition, yaw, pitch )
+
             respawn.player:setCharacter(newChar)
             g_gameManager.players[respawn.player.id].health = maxHealth
             self.network:sendToClient(respawn.player, "cl_init")
+            sm.effect.playEffect( "Characterspawner - Activate", spawnPosition )
 
             self.respawns[k] = nil
         end
@@ -56,18 +71,18 @@ function PaintBallGame:sv_dmg(params)
     g_gameManager.players[params.id].health = math.max(g_gameManager.players[params.id].health - params.dmg, 0)
     g_gameManager.network:sendToClients("cl_dmg", g_gameManager.players[params.id].health)
     if g_gameManager.players[params.id].health == 0 then
-        g_gameManager:sv_death(g_gameManager.players[params.id].player)
+        g_gameManager:sv_death({player = g_gameManager.players[params.id].player, respawnColor = params.respawnColor})
     end
 end
 
-function PaintBallGame:sv_death(player)
+function PaintBallGame:sv_death(params)
     --TODO kill messages
     --TODO only hide name tags when game mode, remove on death, reassing on respawn
-    player:getCharacter():setTumbling(true)
-    player:getCharacter():setDowned(true)
+    params.player:getCharacter():setTumbling(true)
+    params.player:getCharacter():setDowned(true)
 
-    self.respawns[#self.respawns+1] = {player = player, time = sm.game.getCurrentTick() + respawnTime*40}
-    self.network:sendToClient(player, "cl_death")
+    self.respawns[#self.respawns+1] = {player = params.player, time = sm.game.getCurrentTick() + respawnTime*40, color = params.respawnColor}
+    self.network:sendToClient(params.player, "cl_death")
 end
 
 function PaintBallGame:client_onCreate()

@@ -68,7 +68,7 @@ function PaintGun:server_onFixedUpdate(timeStep)
 				if g_gameManager and char:isPlayer() then
 					local player = char:getPlayer()
 					if ball.color ~= g_sv_players[player.id].color then
-						sm.event.sendToInteractable(g_gameManager.interactable, "sv_dmg", {id = player.id, dmg = ball.dmg})
+						sm.event.sendToInteractable(g_gameManager.interactable, "sv_dmg", {id = player.id, dmg = ball.dmg, respawnColor = g_sv_players[player.id].color})
 						--TODO explosion on Death?
 					end
 				end
