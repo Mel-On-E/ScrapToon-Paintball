@@ -1,0 +1,32 @@
+{
+	"lodList": [{
+		"mesh": "$GAME_DATA/Character/Char_Tools/Char_spudgun/Base/char_spudgun_base_basic_geo.dae",
+		"includes" : ["POSITION", "UV0", "NORMAL", "TANGENTS", "BLEND_INDICES", "BLEND_WEIGHTS"],
+		"animationList" : [
+	
+		],
+
+		"subMeshMap" : {
+			"char_spudgun_base_mat" : {
+				    "textureList": [
+					"$CONTENT_DATA/Objects/Char_spudgun/Base/char_spudgun_base_dif.tga",
+					"$GAME_DATA/Character/Char_Tools/Char_spudgun/Base/char_spudgun_base_asg.tga",
+					"$GAME_DATA/Character/Char_Tools/Char_spudgun/Base/char_spudgun_base_nor.tga"
+				    ],
+				"color": "ffffff",
+				"material": "DifAsgNor"
+			},
+			"char_spudgun_grip_mat" : {
+				"textureList": [
+					"$GAME_DATA/Character/Char_Tools/Char_spudgun/Base/char_spudgun_grip_dif.tga",
+					"$GAME_DATA/Character/Char_Tools/Char_spudgun/Base/char_spudgun_grip_asg.tga",
+					"$GAME_DATA/Character/Char_Tools/Char_spudgun/Base/char_spudgun_grip_nor.tga"
+				],
+				"color": "ffffff",
+				"material": "DifAsgNor"
+			}
+		},
+
+		"maxViewDistance": 1000.0
+	}]
+}

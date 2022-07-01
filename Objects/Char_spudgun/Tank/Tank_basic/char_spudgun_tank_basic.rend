@@ -1,0 +1,18 @@
+{
+	"lodList": [{
+		"mesh": "$GAME_DATA/Character/Char_Tools/Char_spudgun/Tank/Tank_basic/char_spudgun_tank_basic_geo.dae",
+		"includes" : ["POSITION", "UV0", "NORMAL", "TANGENTS", "BLEND_INDICES", "BLEND_WEIGHTS"],
+		"subMeshList" : [
+			{
+				"textureList": [
+					"$CONTENT_DATA/Objects/Char_spudgun/Tank/Tank_basic/char_spudgun_tank_basic_dif.tga",
+					"$GAME_DATA/Character/Char_Tools/Char_spudgun/Tank/Tank_basic/char_spudgun_tank_basic_asg.tga",
+					"$GAME_DATA/Character/Char_Tools/Char_spudgun/Tank/Tank_basic/char_spudgun_tank_basic_nor.tga"
+				],
+				"color": "366283",
+				"material": "DifAsgNor"
+			}
+		],
+		"maxViewDistance": 1000.0
+	}]
+}

@@ -1,0 +1,35 @@
+{
+	"PaintBall":
+	{
+		"parameterList":
+		{
+			"Size": 0.08,
+			"Velocity_max_50": 50.0,
+			"Material": 2,
+			"Color": "007fff"
+		},
+		"effectList":
+		[
+			{
+				"type": "audio",
+				"name": "Weapon - Hit",
+				"parameters":
+				[
+					"Material",
+					"Velocity_max_50",
+					"Size"
+				],
+				"delay": 0.0
+			},
+			{
+				"type": "particle",
+				"name": "p_destruct_fruit",
+				"parameters":
+				[
+					"Color"
+				],
+				"delay": 0.0
+			}
+		]
+	}
+}
