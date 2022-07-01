@@ -170,7 +170,10 @@ end
 
 
 function PaintGun:sv_fire_ball(params, player)
-	local color = sm.color.new(string.sub(params.color, 1) .. "ff")
+	local color = params.color
+	if type(color) == "string" then
+		color = sm.color.new(string.sub(params.color, 1) .. "ff")
+	end
 	self.sv.balls[self.ballID] = { player = player, pos = params.pos, dir = params.dir, color = color, id = self.ballID }
 	self.network:sendToClients("cl_create_ball", {pos = params.pos, dir = params.dir, color = color, id = self.ballID})
 	
@@ -190,20 +193,21 @@ function PaintGun:sv_player_joined(params, player)
 end
 
 function PaintGun:sv_set_color(color, player)
-	g_sv_players[player.id].color = sm.color.new(string.sub(self.color, 1) .. "ff")
+	g_sv_players[player.id].color = sm.color.new(string.sub(color, 1) .. "ff")
 	self.network:sendToClients("cl_set_color", { player = player, color = color})
 end
 
 function PaintGun:sv_equip(status, player)
 	g_sv_players[player.id].equipped = status
-	print("equipped: " .. tostring(status))
 end
 
 function PaintGun:cl_onCreate()
 	self.cl = {}
 	self.cl.balls = {}
-	self.color = "#eeeeee"
-	self.network:sendToServer("sv_player_joined", {color = self.color})
+	if not g_cl_color then
+		g_cl_color = "#eeeeee"
+	end
+	self.network:sendToServer("sv_player_joined", {color = g_cl_color})
 end
 
 function PaintGun:cl_onUpdate(dt)
@@ -245,17 +249,17 @@ end
 
 function PaintGun:cl_onColorButton(name)
 	local index = tonumber(string.sub(name, 12))
-	self.color = colors[index+1]
+	g_cl_color = colors[index+1]
 	self.gui:close()
-	sm.gui.displayAlertText(self.color .. "New Color")
+	sm.gui.displayAlertText(g_cl_color .. "New Color")
 	if self.tool then
-		self.network:sendToServer("sv_set_color", self.color)
+		self.network:sendToServer("sv_set_color", g_cl_color)
 	end
 end
 
 function PaintGun:cl_set_color(params)
 	local name = ""
-	if params.color == self.color and not sm.localPlayer.getPlayer() == params.player then
+	if params.color == g_cl_color and not sm.localPlayer.getPlayer() == params.player then
 		name = params.color .. params.player.name
 	end
 	params.player:getCharacter():setNameTag(name)

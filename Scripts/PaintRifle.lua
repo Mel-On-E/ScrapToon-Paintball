@@ -611,7 +611,7 @@ function PaintRifle.cl_onPrimaryUse( self, state )
 			local owner = self.tool:getOwner()
 			if owner then
 				--sm.projectile.projectileAttack( projectile_potato, Damage, firePos, dir * fireMode.fireVelocity, owner, fakePosition, fakePositionSelf )
-				self.network:sendToServer("sv_fire_ball", {pos = fakePosition, dir = dir * fireMode.fireVelocity, color = self.color})--PaintBall
+				self.network:sendToServer("sv_fire_ball", {pos = fakePosition, dir = dir * fireMode.fireVelocity, color = g_cl_color})--PaintBall
 			end
 
 			-- Timers
