@@ -27,7 +27,7 @@ function PaintGun:server_onFixedUpdate(timeStep)
 		local char = owner:getCharacter()
 		local climb = false
 		
-		if g_sv_players[owner.id].equipped and char:isCrouching() then
+		if g_sv_players[owner.id] and g_sv_players[owner.id].equipped and char:isCrouching() then
 			local pos = char:getWorldPosition() - sm.vec3.new(0,0,char:getHeight())
 			local valid, result = sm.physics.spherecast(pos + sm.vec3.new(0,0,0.25), pos + sm.vec3.new(0,0,1.1), 0.5, nil, sm.physics.filter.staticBody + sm.physics.filter.dynamicBody)
 		

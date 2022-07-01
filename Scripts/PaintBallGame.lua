@@ -147,6 +147,7 @@ function PaintBallGame:cl_spendPaint(cost)
 end
 
 function PaintBallGame:cl_dmg(health)
+    --TODO add paint splashed on screen via hud?
     g_paintHud:setSliderData( "Health", maxHealth*10+1, health*10 )
 end
 
@@ -158,3 +159,9 @@ function PaintBallGame:cl_death()
     self.death = respawnTime
     sm.gui.setInteractionText("Respawn in " .. tostring(self.death))
 end
+
+--TODO don't shoot dead people
+--TODO hp of other player sometimes? weird.
+--TODO don't remove gui when trying to place 2nd block
+--TODO make spawn parts not paintable
+--TODO speed boost/debuff depending on paint
