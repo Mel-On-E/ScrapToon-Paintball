@@ -5,7 +5,7 @@ dofile( "$SURVIVAL_DATA/Scripts/game/survival_projectiles.lua" )
 
 dofile("$CONTENT_DATA/Scripts/PaintGun.lua") --Paintball
 
-local Damage = 20
+local Damage = 20/2
 
 PaintGatling = class(PaintGun)--Paintball
 
@@ -595,7 +595,7 @@ function PaintGatling.cl_fire( self )
 
 	if self.tool:isCrouching() then return end --Paintball
 
-	if not sm.game.getEnableAmmoConsumption() or sm.container.canSpend( sm.localPlayer.getInventory(), obj_plantables_potato, 1 ) then
+	if not g_cl_gameManager or g_cl_gameManager:cl_spendPaint(self.data.paintCost) then--Paintball
 		
 		local firstPerson = self.tool:isInFirstPersonView()
 		
@@ -640,7 +640,7 @@ function PaintGatling.cl_fire( self )
 		local owner = self.tool:getOwner()
 		if owner then
 			--sm.projectile.projectileAttack( projectile_smallpotato, Damage, firePos, dir * fireMode.fireVelocity, owner, fakePosition, fakePositionSelf )
-			self.network:sendToServer("sv_fire_ball", {pos = fakePosition, dir = dir * fireMode.fireVelocity, color = g_cl_color})--PaintBall
+			self.network:sendToServer("sv_fire_ball", {pos = fakePosition, dir = dir * fireMode.fireVelocity, color = g_cl_color, dmg = Damage})--PaintBall
 		end
 		
 		-- Timers

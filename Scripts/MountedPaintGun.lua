@@ -15,7 +15,7 @@ local FireDelay = 8 --ticks
 local MinForce = 125.0
 local MaxForce = 135.0
 local SpreadDeg = 1.0
-local Damage = 28
+local Damage = 28/2
 
 
 --[[ Server ]]
@@ -71,7 +71,7 @@ function MountedPaintGun.sv_fire( self )
 
 	-- Fire projectile from the shape
 	--sm.projectile.shapeProjectileAttack( projectile_potato, Damage, firePos, dir * fireForce, self.shape )
-	self:sv_fire_ball({pos = self.shape.worldPosition, dir = dir * fireForce, color = self.shape.color})--PaintBall
+	self:sv_fire_ball({pos = self.shape.worldPosition, dir = dir * fireForce, color = self.shape.color, dmg = Damage})--PaintBall
 
 
 	self.network:sendToClients( "cl_onShoot" )

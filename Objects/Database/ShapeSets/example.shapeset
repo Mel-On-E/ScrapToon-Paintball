@@ -21,6 +21,69 @@
 			"ratings": {},
 			"density": 1250.0,
 			"qualityLevel": 4
-		}
+		},
+      {
+         "box" : {
+            "x" : 4,
+            "y" : 4,
+            "z" : 4
+         },
+         "color" : "eeeeee",
+         "density" : 500.0,
+         "physicsMaterial" : "Metal",
+         "qualityLevel" : 0,
+         "ratings" : {
+            "friction" : 7
+         },
+         "renderable" : {
+            "lodList" : [
+               {
+                  "mesh" : "$CHALLENGE_DATA/Objects/Mesh/interactive/obj_interactive_lights_off.fbx",
+                  "pose0" : "$CHALLENGE_DATA/Objects/Mesh/interactive/obj_interactive_lights_on.fbx",
+                  "subMeshList" : [
+                     {
+                        "material" : "PoseAnimDifAsgNor",
+                        "textureList" : [
+                           "$CHALLENGE_DATA/Objects/Textures/interactive/obj_challengemode_starter_block_dif.tga",
+                           "$CHALLENGE_DATA/Objects/Textures/interactive/obj_challengemode_starter_block_asg.tga",
+                           "$CHALLENGE_DATA/Objects/Textures/interactive/obj_challengemode_starter_block_nor.tga"
+                        ]
+                     }
+                  ]
+               }
+            ]
+         },
+         "rotationSet" : "PropY",
+         "scripted" : {
+            "classname" : "PaintBallGame",
+            "filename" : "$CONTENT_DATA/Scripts/PaintBallGame.lua"
+         },
+         "uuid" : "69da9e47-1ad4-44a2-a766-09aa795f25e3"
+      },
+      {
+         "box" : {
+            "x" : 4,
+            "y" : 1,
+            "z" : 4
+         },
+         "color" : "eeeeee",
+         "flammable" : false,
+         "name" : "obj_interactive_characterspawner",
+         "physicsMaterial" : "Mechanical",
+         "ratings" : {
+            "buoyancy" : 2,
+            "density" : 2,
+            "durability" : 3,
+            "friction" : 3
+         },
+         "renderable" : "$CHALLENGE_DATA/Objects/Renderable/interactive/obj_interactive_characterspawner.rend",
+         "rotationSet" : "PropY",
+         "scripted" : {
+            "classname" : "Spawn",
+            "filename" : "$CONTENT_DATA/Scripts/Spawn.lua"
+         },
+         "sticky" : "-Z-Y-X+X",
+         "uuid" : "92587d7f-0d69-4e42-8936-d53cf26002bb"
+      }
    ]
 }

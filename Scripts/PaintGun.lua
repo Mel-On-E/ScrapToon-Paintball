@@ -64,6 +64,14 @@ function PaintGun:server_onFixedUpdate(timeStep)
             local char = result:getCharacter()
             if char then
                 char:setColor(ball.color)
+
+				if g_gameManager and char:isPlayer() then
+					local player = char:getPlayer()
+					if ball.color ~= g_sv_players[player.id].color then
+						sm.event.sendToInteractable(g_gameManager.interactable, "sv_dmg", {id = player.id, dmg = ball.dmg})
+						--TODO explosion on Death?
+					end
+				end
             end
 			
 			local blocksToPaint = {}
@@ -174,7 +182,7 @@ function PaintGun:sv_fire_ball(params, player)
 	if type(color) == "string" then
 		color = sm.color.new(string.sub(params.color, 1) .. "ff")
 	end
-	self.sv.balls[self.ballID] = { player = player, pos = params.pos, dir = params.dir, color = color, id = self.ballID }
+	self.sv.balls[self.ballID] = { player = player, pos = params.pos, dir = params.dir, color = color, id = self.ballID, dmg = params.dmg }
 	self.network:sendToClients("cl_create_ball", {pos = params.pos, dir = params.dir, color = color, id = self.ballID})
 	
 	self.ballID = self.ballID + 1

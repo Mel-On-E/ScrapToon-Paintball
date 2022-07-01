@@ -5,7 +5,7 @@ dofile( "$SURVIVAL_DATA/Scripts/game/survival_projectiles.lua" )
 
 dofile("$CONTENT_DATA/Scripts/PaintGun.lua") --Paintball
 
-local Damage = 16
+local Damage = 16/2
 
 PaintShotgun = class(PaintGun)--Paintball
 
@@ -569,7 +569,7 @@ function PaintShotgun.cl_onPrimaryUse( self, state )
 
 	if self.fireCooldownTimer <= 0.0 and state == sm.tool.interactState.start then
 
-		if not sm.game.getEnableAmmoConsumption() or sm.container.canSpend( sm.localPlayer.getInventory(), obj_plantables_potato, 2 ) then
+		if not g_cl_gameManager or g_cl_gameManager:cl_spendPaint(self.data.paintCost) then--Paintball
 
 			local firstPerson = self.tool:isInFirstPersonView()
 
@@ -614,10 +614,10 @@ function PaintShotgun.cl_onPrimaryUse( self, state )
 			local owner = self.tool:getOwner()
 			if owner then
 				--sm.projectile.projectileAttack( projectile_fries, Damage, firePos, dir * fireMode.fireVelocity, owner, fakePosition, fakePositionSelf )
-				self.network:sendToServer("sv_fire_ball", {pos = fakePosition, dir = sm.noise.gunSpread( dir, spreadDeg ) * fireMode.fireVelocity, color = g_cl_color})--PaintBall
-				self.network:sendToServer("sv_fire_ball", {pos = fakePosition, dir = sm.noise.gunSpread( dir, spreadDeg ) * fireMode.fireVelocity, color = g_cl_color})--PaintBall
-				self.network:sendToServer("sv_fire_ball", {pos = fakePosition, dir = sm.noise.gunSpread( dir, spreadDeg ) * fireMode.fireVelocity, color = g_cl_color})--PaintBall
-				self.network:sendToServer("sv_fire_ball", {pos = fakePosition, dir = sm.noise.gunSpread( dir, spreadDeg ) * fireMode.fireVelocity, color = g_cl_color})--PaintBall
+				for i=0, 4 do
+					self.network:sendToServer("sv_fire_ball", {pos = fakePosition, dir = sm.noise.gunSpread( dir, spreadDeg ) * fireMode.fireVelocity, color = g_cl_color, dmg = Damage})--PaintBall
+				
+				end
 			end
 
 			-- Timers
