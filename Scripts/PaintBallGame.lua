@@ -145,6 +145,10 @@ function PaintBallGame:client_onUpdate()
     if self.death then
         sm.gui.setInteractionText("Respawn in " .. tostring(self.death))
     end
+
+    if g_paint < 99 then
+        sm.gui.setProgressFraction(math.max(g_paint-2, 0)/100)
+    end
 end
 
 function PaintBallGame:cl_spendPaint(cost)
