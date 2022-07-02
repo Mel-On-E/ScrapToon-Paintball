@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="Widget" skin="BackgroundInteractableWide" position_real="0 0 0.364583 0.4" name="BackPanel">
+        <Widget type="TextBox" skin="TextBox" position_real="0 0.0869565 1 0.106087" align="HStretch Top" name="GameTitle">
+            <Property key="Caption" value="#ffff00T U R F   W A R S"/>
+            <Property key="TextAlign" value="Center"/>
+            <Property key="FontName" value="SM_HeaderLarge_Medium"/>
+            <Property key="TextShadow" value="true"/>
+        </Widget>
+        <Widget type="Widget" skin="BackgroundPopup" position_real="0 0.306087 1.00286 0.693913" align="HStretch Bottom" name="MainPanelBG">
+            <Widget type="Widget" skin="SequenceListBackgroundLocked" position_real="0.0569801 0.100251 0.42735 0.799499" align="Left Bottom" name="PlayerDataBG">
+                <Widget type="TextBox" skin="TextBox" position_real="0.0333333 0.031348 0.933333 0.141066" align="HStretch Top" name="PlayerDataLabel">
+                    <Property key="Caption" value="Description"/>
+                    <Property key="FontName" value="SM_ItemTitle"/>
+                    <Property key="TextAlign" value="Center"/>
+                    <Property key="TextShadow" value="true"/>
+                </Widget>
+                <Widget type="TextBox" skin="TextBox" position_real="0.05 0.05 1 1" align="Left VStretch" name="BlueprintInfo">
+                    <Property key="Caption" value="Paint as many parts as\npossible!"/>
+                    <Property key="TextAlign" value="Left"/>
+                    <Property key="TextShadow" value="true"/>
+                    <Property key="FontName" value="SM_ItemTitle"/>
+                </Widget>
+            </Widget>
+            <Widget type="Widget" skin="HudBackgroundShadowLarge" position_real="0.51567 0.100251 0.42735 0.799499" align="Right Bottom" name="FunctionsBG">
+                <Widget type="TextBox" skin="TextBox" position_real="0.0333333 0.031348 0.933333 0.141066" align="HStretch Top" name="FunctionsLabel">
+                    <Property key="Caption" value="Options"/>
+                    <Property key="TextAlign" value="Center"/>
+                    <Property key="TextShadow" value="true"/>
+                    <Property key="FontName" value="SM_ItemTitle"/>
+                </Widget>
+                <Widget type="Button" skin="PrimaryButton" position_real="0.0333333 0.7 0.933333 0.25" align="HStretch Bottom" name="Start">
+                    <Property key="Caption" value="Start Game"/>
+                    <Property key="FontName" value="SM_ItemTitle"/>
+                    <Property key="TextAlign" value="Center"/>
+                </Widget>
+                <Widget type="Button" skin="DressbotArrowRight" position_real="0.766667 0.2 0.2 0.188088" align="Right Bottom" name="TimeUp"/>
+                <Widget type="Button" skin="DressbotArrowLeft" position_real="0.0333333 0.2 0.2 0.188088" align="Left Bottom" name="TimeDown"/>
+                <Widget type="TextBox" skin="TextBox" position_real="0.233333 0.2 0.533333 0.188088" align="HStretch Bottom" name="Time">
+                    <Property key="Caption" value="Time: 5min"/>
+                    <Property key="FontName" value="SM_ItemTitle"/>
+                    <Property key="TextAlign" value="Center"/>
+                    <Property key="TextShadow" value="true"/>
+                </Widget>
+            </Widget>
+        </Widget>
+    </Widget>
+</MyGUI>

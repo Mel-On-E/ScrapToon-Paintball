@@ -13,8 +13,13 @@ function PaintBallGame:server_onCreate()
     if not g_gameManager then
         g_gameManager = self
         g_gameManager.players = {}
-        self.respawns = {}
-        self.network:sendToClients("cl_init")
+        g_gameManager.respawns = {}
+        g_gameManager.game = {
+            mode = "Turf Wars",
+            start = false,
+            settings = { time = 5 }
+        }
+        self.network:sendToClients("cl_init", g_gameManager.game)
     else
         self.network:sendToClients("cl_msg", "You can only have one game manager")
         self.shape:destroyPart(0)
@@ -53,7 +58,7 @@ function PaintBallGame:server_onFixedUpdate()
 
             respawn.player:setCharacter(newChar)
             g_gameManager.players[respawn.player.id].health = maxHealth
-            self.network:sendToClient(respawn.player, "cl_init")
+            self.network:sendToClient(respawn.player, "cl_init", g_gameManager.game)
             self.network:sendToClients("cl_set_name_tags", g_sv_players)
             sm.effect.playEffect( "Characterspawner - Activate", spawnPosition )
 
@@ -70,6 +75,7 @@ end
 
 function PaintBallGame:sv_join_game(params, player)
     g_gameManager.players[player.id] = {health = maxHealth, player = player}
+    self.network:sendToClient(player, "cl_init", g_gameManager.game)
 end
 
 function PaintBallGame:sv_dmg(params)
@@ -99,6 +105,11 @@ function PaintBallGame:sv_death(params)
     self.network:sendToClients("cl_set_name_tags", g_sv_players)
 end
 
+function PaintBallGame:sv_change_settings(params)
+    g_gameManager.game.settings.time = math.max(3, math.min(params.time, 20))
+    self.network:sendToClients("cl_update_game", g_gameManager.game)
+end
+
 function PaintBallGame:client_onCreate()
     if not g_paintHud then
 		g_paintHud = sm.gui.createSurvivalHudGui()
@@ -111,10 +122,11 @@ function PaintBallGame:client_onCreate()
 	end
 end
 
-function PaintBallGame:cl_init()
+function PaintBallGame:cl_init(game)
     self.cl = {}
     self.cl.health = 100
     g_cl_gameManager = self
+    g_cl_gameManager.cl_game = g_gameManager.game
     g_paint = 100
     g_paintHud:setSliderData( "Food", maxHealth+1, g_paint )
     self.death = nil
@@ -129,6 +141,9 @@ function PaintBallGame:client_onDestroy()
         if g_paint then
             g_paint = nil
             g_cl_gameManager = nil
+        end
+        if self.gui then
+            self.gui:destroy()
         end
     end
 end
@@ -152,6 +167,20 @@ function PaintBallGame:client_onUpdate()
 
     if g_paint < 99 then
         sm.gui.setProgressFraction(math.max(g_paint-2, 0)/100)
+    end
+end
+
+function PaintBallGame:client_onInteract(character, state)
+    if state then
+        self.gui = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/Layouts/PaintGameMaster.layout")
+
+        self:cl_update_gui()
+
+        self.gui:setButtonCallback("TimeUp", "cl_time_up")
+        self.gui:setButtonCallback("TimeDown", "cl_time_down")
+        self.gui:setButtonCallback("Start", "cl_start_game")
+
+        self.gui:open()
     end
 end
 
@@ -190,11 +219,36 @@ function PaintBallGame:cl_set_name_tags(players)
     PaintGun.cl_set_name_tags(self, players)
 end
 
+function PaintBallGame:cl_update_game(game)
+    g_cl_gameManager.cl_game = game
+    if self.gui:isActive() then
+        self:cl_update_gui()
+    end
+end
+
+function PaintBallGame:cl_update_gui()
+    self.gui:setText("Time", tostring(g_cl_gameManager.cl_game.settings.time) .. "min")
+    self.gui:setText("Start", g_cl_gameManager.cl_game.start and "End Game" or "Start Game")
+end
+
+function PaintBallGame:cl_time_up()
+    self.network:sendToServer("sv_change_settings", {time = g_cl_gameManager.cl_game.settings.time + 1})
+end
+
+function PaintBallGame:cl_time_down()
+    self.network:sendToServer("sv_change_settings", {time = g_cl_gameManager.cl_game.settings.time - 1})
+end
+
+
+
+--TODO Turf wars game mode
+--add time back
+--make settings work
+--why am I writing this down? I think I know what to do
 
 
 --TODO Delete projectiles after timelimit
 --TODO Add some crouch shoot cooldown
---TODO explosion on Death?
 
 
 
