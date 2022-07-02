@@ -29,7 +29,7 @@ function PaintBallGame:server_onFixedUpdate()
             if player.health > 0 then
                 local multiplier = player.player:getCharacter():isClimbing() and healthRegenInkMultiplier or 1
                 player.health = math.min(player.health + healthPerTenTicks*multiplier, maxHealth)
-                g_gameManager.network:sendToClient(player.player, "cl_dmg", player.health)
+                g_gameManager.network:sendToClient(player.player, "cl_dmg", {health = player.health})
             end
         end
     end
@@ -75,7 +75,7 @@ end
 function PaintBallGame:sv_dmg(params)
     if g_gameManager.players[params.id].health > 0 then
         g_gameManager.players[params.id].health = math.max(g_gameManager.players[params.id].health - params.dmg, 0)
-        g_gameManager.network:sendToClient(g_gameManager.players[params.id].player, "cl_dmg", g_gameManager.players[params.id].health)
+        g_gameManager.network:sendToClient(g_gameManager.players[params.id].player, "cl_dmg", {health = g_gameManager.players[params.id].health, damage = params.dmg})
         if g_gameManager.players[params.id].health == 0 then
             g_gameManager:sv_death({player = g_gameManager.players[params.id].player, respawnColor = params.respawnColor, attacker = params.attacker})
         end
@@ -166,8 +166,15 @@ function PaintBallGame:cl_spendPaint(cost)
     return true
 end
 
-function PaintBallGame:cl_dmg(health)  
-    g_paintHud:setSliderData( "Health", maxHealth*10+1, health*10 )
+function PaintBallGame:cl_dmg(params)  
+    g_paintHud:setSliderData( "Health", maxHealth*10+1, params.health*10 )
+    if params.damage then
+        local effectParams = {
+            ["char"] = sm.localPlayer.getPlayer():isMale() and 1 or 2,
+            ["damage"] = params.damage
+        }
+        sm.effect.playEffect("Mechanic - HurtDrown", sm.localPlayer.getPlayer().character.worldPosition, sm.vec3.zero(), sm.quat.identity(), sm.vec3.one(), effectParams )
+    end
 end
 
 function PaintBallGame:cl_msg(msg)
@@ -188,9 +195,10 @@ end
 --TODO Delete projectiles after timelimit
 --TODO Add some crouch shoot cooldown
 --TODO explosion on Death?
---TODO dmg in enemy paint
 
 
 
 --TODO Find someone to do 2D paint splash effects
 --TODO Find someone to rewrite the algo for coloring blocks
+--better splash effects?
+--sphere instead of glue bottle? water effect?

@@ -11,8 +11,10 @@ local colors = {
 }
 local unpaintableParts = {sm.uuid.new("92587d7f-0d69-4e42-8936-d53cf26002bb")}
 local unpaintableBlocks = {blk_glass, blk_glasstile, blk_armoredglass}
-local swimSpeedFactor = 2
+local swimSpeedFactor = 3
 local paintSlowFactor = 1/3
+local paintDamage = 2.5
+local paintDamageTicks = 10
 
 function PaintGun:server_onCreate()
 	self.sv = {}
@@ -44,7 +46,11 @@ function PaintGun:server_onFixedUpdate(timeStep)
 					end
 				elseif sm.item.getShapeDefaultColor(shape.uuid) ~= shape.color then
 					newSpeed = paintSlowFactor
-					--print("wrong paint")
+
+					if g_sv_players[owner.id].paintDamageCooldown + paintDamageTicks < sm.game.getCurrentTick() then
+						sm.event.sendToInteractable(g_gameManager.interactable, "sv_dmg", {id = owner.id, dmg = paintDamage, respawnColor = g_sv_players[owner.id].color})
+						g_sv_players[owner.id].paintDamageCooldown = sm.game.getCurrentTick()
+					end
 				end
 			end
 
@@ -223,7 +229,8 @@ function PaintGun:sv_player_joined(params, player)
 	g_sv_players[player.id] = {
 		color = sm.color.new(string.sub(params.color, 1) .. "ff"),
 		player = player,
-		speed = 1
+		speed = 1,
+		paintDamageCooldown = sm.game.getCurrentTick()
 	}
 	self.network:sendToClients("cl_set_name_tags", g_sv_players)
 end
