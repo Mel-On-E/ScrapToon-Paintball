@@ -13,26 +13,32 @@ end
 
 function Spawn:server_onCreate()
 
-    for i=1, #colors+1 do
-        local newColor = sm.color.new(string.sub(colors[i], 1) .. "ff")
-        local exists = false
-        for _, shape in pairs(g_spawns) do
-            if shape.color == newColor then
-                exists = true
+    self.saved = self.storage:load()
+
+    if not self.saved then
+        for i=1, #colors+1 do
+            local newColor = sm.color.new(string.sub(colors[i], 1) .. "ff")
+            local exists = false
+            for _, shape in pairs(g_spawns) do
+                if shape.color == newColor then
+                    exists = true
+                end
+            end
+
+            if not exists then
+                self.shape:setColor(newColor)
+                break
+            end
+
+            if i == #colors then
+                self.network:sendToClients("cl_msg", "You can only have one spawn per color")
+                self.shape:destroyPart(0)
+                return
             end
         end
-
-        if not exists then
-            self.shape:setColor(newColor)
-            break
-        end
-
-        if i == #colors then
-            self.network:sendToClients("cl_msg", "You can only have one spawn per color")
-            self.shape:destroyPart(0)
-            return
-        end
     end
+    self.saved = true
+    self.storage:save(self.saved)
 
     self.color = self.shape.color
     self.key = #g_spawns+1
