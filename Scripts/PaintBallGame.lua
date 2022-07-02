@@ -69,7 +69,7 @@ end
 
 function PaintBallGame:sv_dmg(params)
     g_gameManager.players[params.id].health = math.max(g_gameManager.players[params.id].health - params.dmg, 0)
-    g_gameManager.network:sendToClients("cl_dmg", g_gameManager.players[params.id].health)
+    g_gameManager.network:sendToClient(g_gameManager.players[params.id].player, "cl_dmg", g_gameManager.players[params.id].health)
     if g_gameManager.players[params.id].health == 0 then
         g_gameManager:sv_death({player = g_gameManager.players[params.id].player, respawnColor = params.respawnColor, attacker = params.attacker})
     end
@@ -165,12 +165,17 @@ function PaintBallGame:cl_death()
     sm.gui.setInteractionText("Respawn in " .. tostring(self.death))
 end
 
+
+
 --TODO only hide name tags when game mode, remove on death, reassing on respawn
---TODO add paint splashed on screen via hud?
 --TODO don't shoot dead people
---TODO hp of other player sometimes? weird.
 --TODO don't remove gui when trying to place 2nd block
 --TODO speed boost/debuff depending on paint
 --TODO Delete projectiles after timelimit
 --TODO Add some crouch shoot cooldown
 --TODO explosion on Death?
+
+
+
+--TODO Find someone to do 2D paint splash effects
+--TODO Find someone to rewrite the algo for coloring blocks
