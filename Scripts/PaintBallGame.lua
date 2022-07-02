@@ -71,15 +71,21 @@ function PaintBallGame:sv_dmg(params)
     g_gameManager.players[params.id].health = math.max(g_gameManager.players[params.id].health - params.dmg, 0)
     g_gameManager.network:sendToClients("cl_dmg", g_gameManager.players[params.id].health)
     if g_gameManager.players[params.id].health == 0 then
-        g_gameManager:sv_death({player = g_gameManager.players[params.id].player, respawnColor = params.respawnColor})
+        g_gameManager:sv_death({player = g_gameManager.players[params.id].player, respawnColor = params.respawnColor, attacker = params.attacker})
     end
 end
 
 function PaintBallGame:sv_death(params)
-    --TODO kill messages
-    --TODO only hide name tags when game mode, remove on death, reassing on respawn
     params.player:getCharacter():setTumbling(true)
     params.player:getCharacter():setDowned(true)
+
+    local name = "#" .. string.sub(params.respawnColor:getHexStr(), 1, 6) .. params.player.name
+    if params.attacker then
+        self.network:sendToClients("cl_msg", name .. "#ffffff was inked by " .. params.attacker)
+    else
+        self.network:sendToClients("cl_msg", name .. "#ffffff was inked")
+    end
+    
 
     self.respawns[#self.respawns+1] = {player = params.player, time = sm.game.getCurrentTick() + respawnTime*40, color = params.respawnColor}
     self.network:sendToClient(params.player, "cl_death")
@@ -146,8 +152,7 @@ function PaintBallGame:cl_spendPaint(cost)
     return true
 end
 
-function PaintBallGame:cl_dmg(health)
-    --TODO add paint splashed on screen via hud?
+function PaintBallGame:cl_dmg(health)  
     g_paintHud:setSliderData( "Health", maxHealth*10+1, health*10 )
 end
 
@@ -160,8 +165,12 @@ function PaintBallGame:cl_death()
     sm.gui.setInteractionText("Respawn in " .. tostring(self.death))
 end
 
+--TODO only hide name tags when game mode, remove on death, reassing on respawn
+--TODO add paint splashed on screen via hud?
 --TODO don't shoot dead people
 --TODO hp of other player sometimes? weird.
 --TODO don't remove gui when trying to place 2nd block
---TODO make spawn parts not paintable
 --TODO speed boost/debuff depending on paint
+--TODO Delete projectiles after timelimit
+--TODO Add some crouch shoot cooldown
+--TODO explosion on Death?

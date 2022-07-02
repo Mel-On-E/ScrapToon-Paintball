@@ -1,10 +1,6 @@
+dofile("$SURVIVAL_DATA/Scripts/game/survival_items.lua")
+
 PaintGun = class()
-
---Paintball
-
---TODO
---Delete projectiles after timelimit
---Add some crouch shoot cooldown
 
 local ballSize = sm.vec3.one()*0.25
 local colors = {
@@ -13,6 +9,8 @@ local colors = {
 	"#4a4a4a", "#817c00", "#577d07", "#0e8031", "#118787", "#0f2e91", "#500aa6", "#720a74", "#7c0000", "#673b00",
 	"#222222", "#323000", "#375000", "#064023", "#0a4444", "#0a1d5a", "#35086c", "#520653", "#560202", "#472800"
 }
+local unpaintableParts = {sm.uuid.new("92587d7f-0d69-4e42-8936-d53cf26002bb")}
+local unpaintableBlocks = {blk_glass, blk_glasstile, blk_armoredglass}
 
 function PaintGun:server_onCreate()
 	self.sv = {}
@@ -68,17 +66,26 @@ function PaintGun:server_onFixedUpdate(timeStep)
 				if g_gameManager and char:isPlayer() then
 					local player = char:getPlayer()
 					if ball.color ~= g_sv_players[player.id].color then
-						sm.event.sendToInteractable(g_gameManager.interactable, "sv_dmg", {id = player.id, dmg = ball.dmg, respawnColor = g_sv_players[player.id].color})
-						--TODO explosion on Death?
+						local attacker
+						if ball.player then
+							attacker = g_sv_players[ball.player.id].color:getHexStr() .. ball.player.name
+						end
+						sm.event.sendToInteractable(g_gameManager.interactable, "sv_dmg", {id = player.id, dmg = ball.dmg, respawnColor = g_sv_players[player.id].color, attacker = attacker})
 					end
 				end
             end
 			
 			local blocksToPaint = {}
 			for _, body in pairs(sm.physics.getSphereContacts(result.pointWorld, self.data.paintRadius).bodies) do	
-				for __, shape in pairs(body:getShapes()) do
+				for _, shape in pairs(body:getShapes()) do
 					if shape.color ~= ball.color then
 						if not shape.isBlock then
+							for _, uuid in ipairs(unpaintableParts) do
+								if shape.uuid == uuid then
+									goto nextShape
+								end
+							end
+
 							--TODO get chance for painting pig parts
 							local distance = (shape.worldPosition - result.pointWorld):length()
 							if distance <= self.data.paintRadius + math.random()*self.data.paintRadius + math.random()*self.data.paintRadius + math.random()*self.data.paintRadius then
@@ -87,6 +94,12 @@ function PaintGun:server_onFixedUpdate(timeStep)
 							--TODO check if single block?
 							--TODO avoid joints getting disconnected?
 						else
+							for _, uuid in ipairs(unpaintableBlocks) do
+								if shape.uuid == uuid then
+									goto nextShape
+								end
+							end
+
 							local blockPos = shape:getClosestBlockLocalPosition(result.pointWorld)
 							local distance = (blockPos/4 - result.pointLocal):length()
 							if distance <= self.data.paintRadius*2 then
@@ -94,6 +107,7 @@ function PaintGun:server_onFixedUpdate(timeStep)
 							end
 						end
 					end
+					::nextShape::
 				end
 			end
 

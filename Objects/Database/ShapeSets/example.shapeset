@@ -1,27 +1,29 @@
 {
    "partList" : [
       {
-			"uuid": "415fe77c-5687-49dd-8175-65f2dd26d44a",
-			"renderable": "$GAME_DATA/Objects/Renderable/Interactive/obj_interactive_mountablespudgun.rend",
-			"color": "eeeeee",
-			"hull": {
-				"x": 1,
-				"y": 1,
-				"z": 4,
-				"col": "$GAME_DATA/Objects/Collision/obj_interactive_mountablespudgun_col.obj"
-			},
-			"scripted": {
-				"filename": "$CONTENT_DATA/Scripts/MountedPaintGun.lua",
-				"classname": "MountedPaintGun",
-            "data": { "paintRadius": 0.667 }
-			},
-			"rotationSet": "PropYZ",
-			"sticky": "-Z-Y+Y-X+X",
-			"physicsMaterial": "Mechanical",
-			"ratings": {},
-			"density": 1250.0,
-			"qualityLevel": 4
-		},
+         "color" : "eeeeee",
+         "density" : 1250.0,
+         "hull" : {
+            "col" : "$GAME_DATA/Objects/Collision/obj_interactive_mountablespudgun_col.obj",
+            "x" : 1,
+            "y" : 1,
+            "z" : 4
+         },
+         "physicsMaterial" : "Mechanical",
+         "qualityLevel" : 4,
+         "ratings" : {},
+         "renderable" : "$GAME_DATA/Objects/Renderable/Interactive/obj_interactive_mountablespudgun.rend",
+         "rotationSet" : "PropYZ",
+         "scripted" : {
+            "classname" : "MountedPaintGun",
+            "data" : {
+               "paintRadius" : 0.6670
+            },
+            "filename" : "$CONTENT_DATA/Scripts/MountedPaintGun.lua"
+         },
+         "sticky" : "-Z-Y+Y-X+X",
+         "uuid" : "415fe77c-5687-49dd-8175-65f2dd26d44a"
+      },
       {
          "box" : {
             "x" : 4,
@@ -77,6 +79,9 @@
             "friction" : 3
          },
          "renderable" : "$CHALLENGE_DATA/Objects/Renderable/interactive/obj_interactive_characterspawner.rend",
+         "restrictions" : {
+            "paintable" : false
+         },
          "rotationSet" : "PropY",
          "scripted" : {
             "classname" : "Spawn",
