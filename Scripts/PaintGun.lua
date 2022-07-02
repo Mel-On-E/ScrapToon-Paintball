@@ -68,7 +68,7 @@ function PaintGun:server_onFixedUpdate(timeStep)
 					if ball.color ~= g_sv_players[player.id].color then
 						local attacker
 						if ball.player then
-							attacker = g_sv_players[ball.player.id].color:getHexStr() .. ball.player.name
+							attacker = "#" .. string.sub(g_sv_players[ball.player.id].color:getHexStr(), 1, 6) .. ball.player.name
 						end
 						sm.event.sendToInteractable(g_gameManager.interactable, "sv_dmg", {id = player.id, dmg = ball.dmg, respawnColor = g_sv_players[player.id].color, attacker = attacker})
 					end
@@ -209,14 +209,15 @@ end
 
 function PaintGun:sv_player_joined(params, player)
 	g_sv_players[player.id] = {
-		color = sm.color.new(string.sub(params.color, 1) .. "ff")
+		color = sm.color.new(string.sub(params.color, 1) .. "ff"),
+		player = player
 	}
-	self.network:sendToClients("cl_set_color", { player = player, color = params.color, equipped = false})
+	self.network:sendToClients("cl_set_name_tags", g_sv_players)
 end
 
 function PaintGun:sv_set_color(color, player)
 	g_sv_players[player.id].color = sm.color.new(string.sub(color, 1) .. "ff")
-	self.network:sendToClients("cl_set_color", { player = player, color = color})
+	self.network:sendToClients("cl_set_name_tags", g_sv_players)
 end
 
 function PaintGun:sv_equip(status, player)
@@ -279,12 +280,16 @@ function PaintGun:cl_onColorButton(name)
 	end
 end
 
-function PaintGun:cl_set_color(params)
-	local name = ""
-	if params.color == g_cl_color and not sm.localPlayer.getPlayer() == params.player then
-		name = params.color .. params.player.name
+function PaintGun:cl_set_name_tags(players)
+	for id, player in pairs(players) do
+		local color = "#" .. string.sub(player.color:getHexStr(), 1, 6)
+		local name = ""
+		local char = player.player:getCharacter()
+		if (not g_cl_gameManager or color == g_cl_color) and not char:isDowned() and sm.localPlayer.getPlayer() ~= player.player then
+			name = color .. player.player.name
+		end
+		char:setNameTag(name)
 	end
-	params.player:getCharacter():setNameTag(name)
 end
 
 

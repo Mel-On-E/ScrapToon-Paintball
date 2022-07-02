@@ -1,3 +1,5 @@
+dofile("$CONTENT_DATA/Scripts/PaintGun.lua")
+
 PaintBallGame = class()
 
 local maxHealth = 100
@@ -52,6 +54,7 @@ function PaintBallGame:server_onFixedUpdate()
             respawn.player:setCharacter(newChar)
             g_gameManager.players[respawn.player.id].health = maxHealth
             self.network:sendToClient(respawn.player, "cl_init")
+            self.network:sendToClients("cl_set_name_tags", g_sv_players)
             sm.effect.playEffect( "Characterspawner - Activate", spawnPosition )
 
             self.respawns[k] = nil
@@ -93,6 +96,7 @@ function PaintBallGame:sv_death(params)
 
     self.respawns[#self.respawns+1] = {player = params.player, time = sm.game.getCurrentTick() + respawnTime*40, color = params.respawnColor}
     self.network:sendToClient(params.player, "cl_death")
+    self.network:sendToClients("cl_set_name_tags", g_sv_players)
 end
 
 function PaintBallGame:client_onCreate()
@@ -175,9 +179,12 @@ function PaintBallGame:cl_death()
     sm.gui.setInteractionText("Respawn in " .. tostring(self.death))
 end
 
+function PaintBallGame:cl_set_name_tags(players)
+    PaintGun.cl_set_name_tags(self, players)
+end
 
 
---TODO only hide name tags when game mode, remove on death, reassing on respawn
+
 --TODO speed boost/debuff depending on paint
 --TODO Delete projectiles after timelimit
 --TODO Add some crouch shoot cooldown
