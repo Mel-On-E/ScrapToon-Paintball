@@ -615,7 +615,7 @@ function PaintShotgun.cl_onPrimaryUse( self, state )
 			if owner then
 				--sm.projectile.projectileAttack( projectile_fries, Damage, firePos, dir * fireMode.fireVelocity, owner, fakePosition, fakePositionSelf )
 				for i=0, 4 do
-					self.network:sendToServer("sv_fire_ball", {pos = fakePosition, dir = sm.noise.gunSpread( dir, spreadDeg ) * fireMode.fireVelocity, color = g_cl_color, dmg = Damage})--PaintBall
+					self.network:sendToServer("sv_fire_ball", {pos = fakePosition, dir = sm.noise.gunSpread( dir, spreadDeg ) * fireMode.fireVelocity, dmg = Damage})--PaintBall
 				
 				end
 			end

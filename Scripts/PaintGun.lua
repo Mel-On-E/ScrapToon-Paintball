@@ -11,6 +11,8 @@ local colors = {
 }
 local unpaintableParts = {sm.uuid.new("92587d7f-0d69-4e42-8936-d53cf26002bb")}
 local unpaintableBlocks = {blk_glass, blk_glasstile, blk_armoredglass}
+local swimSpeedFactor = 2
+local paintSlowFactor = 1/3
 
 function PaintGun:server_onCreate()
 	self.sv = {}
@@ -25,17 +27,30 @@ function PaintGun:server_onFixedUpdate(timeStep)
 		local char = owner:getCharacter()
 		local climb = false
 		
-		if g_sv_players[owner.id] and g_sv_players[owner.id].equipped and char:isCrouching() then
+		if g_sv_players[owner.id] and g_sv_players[owner.id].equipped then
 			local pos = char:getWorldPosition() - sm.vec3.new(0,0,char:getHeight())
 			local valid, result = sm.physics.spherecast(pos + sm.vec3.new(0,0,0.25), pos + sm.vec3.new(0,0,1.1), 0.5, nil, sm.physics.filter.staticBody + sm.physics.filter.dynamicBody)
-		
+			
+			local oldSpeed = g_sv_players[owner.id].speed
+			local newSpeed = 1
+
 			if valid then
 				local shape = result:getShape()
+
 				if shape.color == g_sv_players[owner.id].color then
-					climb = true
-				else
+					if char:isCrouching() then
+						climb = true
+						newSpeed = swimSpeedFactor
+					end
+				elseif sm.item.getShapeDefaultColor(shape.uuid) ~= shape.color then
+					newSpeed = paintSlowFactor
 					--print("wrong paint")
 				end
+			end
+
+			if newSpeed ~= oldSpeed then
+				g_sv_players[owner.id].speed = newSpeed
+				self.network:sendToClient(owner, "cl_set_speed", newSpeed)
 			end
 		end
 		
@@ -192,10 +207,7 @@ end
 
 
 function PaintGun:sv_fire_ball(params, player)
-	local color = params.color
-	if type(color) == "string" then
-		color = sm.color.new(string.sub(params.color, 1) .. "ff")
-	end
+	local color = params.color or g_sv_players[player.id].color
 	self.sv.balls[self.ballID] = { player = player, pos = params.pos, dir = params.dir, color = color, id = self.ballID, dmg = params.dmg }
 	self.network:sendToClients("cl_create_ball", {pos = params.pos, dir = params.dir, color = color, id = self.ballID})
 	
@@ -210,7 +222,8 @@ end
 function PaintGun:sv_player_joined(params, player)
 	g_sv_players[player.id] = {
 		color = sm.color.new(string.sub(params.color, 1) .. "ff"),
-		player = player
+		player = player,
+		speed = 1
 	}
 	self.network:sendToClients("cl_set_name_tags", g_sv_players)
 end
@@ -227,10 +240,12 @@ end
 function PaintGun:cl_onCreate()
 	self.cl = {}
 	self.cl.balls = {}
-	if not g_cl_color then
-		g_cl_color = "#eeeeee"
+	if not g_cl_PaintGun then
+		g_cl_PaintGun = self
+		g_cl_PaintGun.color = "#eeeeee"
+		g_cl_PaintGun.speed = 1
 	end
-	self.network:sendToServer("sv_player_joined", {color = g_cl_color})
+	self.network:sendToServer("sv_player_joined", {color = g_cl_PaintGun.color})
 end
 
 function PaintGun:cl_onUpdate(dt)
@@ -239,6 +254,10 @@ function PaintGun:cl_onUpdate(dt)
 		ball.effect:setPosition(pos)
 		ball.pos = pos
 		ball.dir = dir
+	end
+
+	if self == g_cl_PaintGun then
+		sm.localPlayer.getPlayer().character.movementSpeedFraction = g_cl_PaintGun.speed
 	end
 end
 
@@ -272,11 +291,11 @@ end
 
 function PaintGun:cl_onColorButton(name)
 	local index = tonumber(string.sub(name, 12))
-	g_cl_color = colors[index+1]
+	g_cl_PaintGun.color = colors[index+1]
 	self.gui:close()
-	sm.gui.displayAlertText(g_cl_color .. "New Color")
+	sm.gui.displayAlertText(g_cl_PaintGun.color .. "New Color")
 	if self.tool then
-		self.network:sendToServer("sv_set_color", g_cl_color)
+		self.network:sendToServer("sv_set_color", g_cl_PaintGun.color)
 	end
 end
 
@@ -285,11 +304,15 @@ function PaintGun:cl_set_name_tags(players)
 		local color = "#" .. string.sub(player.color:getHexStr(), 1, 6)
 		local name = ""
 		local char = player.player:getCharacter()
-		if (not g_cl_gameManager or color == g_cl_color) and not char:isDowned() and sm.localPlayer.getPlayer() ~= player.player then
+		if (not g_cl_gameManager or color == g_cl_PaintGun.color) and not char:isDowned() and sm.localPlayer.getPlayer() ~= player.player then
 			name = color .. player.player.name
 		end
 		char:setNameTag(name)
 	end
+end
+
+function PaintGun:cl_set_speed(newSpeed)
+	g_cl_PaintGun.speed = newSpeed
 end
 
 

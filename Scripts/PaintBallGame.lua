@@ -157,7 +157,7 @@ end
 
 function PaintBallGame:cl_spendPaint(cost)
     if g_paint < cost then
-        sm.gui.displayAlertText("No Ink")
+        sm.gui.displayAlertText(g_cl_PaintGun.color .. "No Ink")
         return false
     end
 
@@ -185,10 +185,10 @@ end
 
 
 
---TODO speed boost/debuff depending on paint
 --TODO Delete projectiles after timelimit
 --TODO Add some crouch shoot cooldown
 --TODO explosion on Death?
+--TODO dmg in enemy paint
 
 
 
