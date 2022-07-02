@@ -8,10 +8,10 @@ local healthRegenInkMultiplier = 4.0
 local respawnTime = 10
 
 function PaintBallGame:server_onCreate()
-    self.respawns = {}
     if not g_gameManager then
         g_gameManager = self
         g_gameManager.players = {}
+        self.respawns = {}
         self.network:sendToClients("cl_init")
     else
         self.network:sendToClients("cl_msg", "You can only have one game manager")
@@ -20,6 +20,8 @@ function PaintBallGame:server_onCreate()
 end
 
 function PaintBallGame:server_onFixedUpdate()
+    if self ~= g_gameManager then return end
+
     if sm.game.getCurrentTick() % 10 == 0 then
         for id, player in pairs(g_gameManager.players) do
             if player.health > 0 then
@@ -113,13 +115,15 @@ function PaintBallGame:cl_init()
 end
 
 function PaintBallGame:client_onDestroy()
-    if g_paintHud then
-        g_paintHud:destroy()
-        g_paintHud = nil
-    end
-    if g_paint then
-        g_paint = nil
-        g_cl_gameManager = nil
+    if g_cl_gameManager == self then
+        if g_paintHud then
+            g_paintHud:destroy()
+            g_paintHud = nil
+        end
+        if g_paint then
+            g_paint = nil
+            g_cl_gameManager = nil
+        end
     end
 end
 
@@ -169,7 +173,6 @@ end
 
 --TODO only hide name tags when game mode, remove on death, reassing on respawn
 --TODO don't shoot dead people
---TODO don't remove gui when trying to place 2nd block
 --TODO speed boost/debuff depending on paint
 --TODO Delete projectiles after timelimit
 --TODO Add some crouch shoot cooldown
