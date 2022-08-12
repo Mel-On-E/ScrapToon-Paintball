@@ -372,7 +372,7 @@ function PaintGatling.client_onUpdate( self, dt )
 end
 
 function PaintGatling.client_onEquip( self, animate )
-	self.network:sendToServer("sv_equip", true) --Paintball
+	self.network:sendToServer("sv_equip", {player = self.tool:getOwner(), status = true}) --Paintball
 	
 	if animate then
 		sm.audio.play( "PotatoRifle - Equip", self.tool:getPosition() )
@@ -407,7 +407,7 @@ function PaintGatling.client_onEquip( self, animate )
 end
 
 function PaintGatling.client_onUnequip( self, animate )
-	self.network:sendToServer("sv_equip", false) --Paintball
+	self.network:sendToServer("sv_equip", {player = self.tool:getOwner(), status = false}) --Paintball
 
 	self.windupEffect:stop()
 	self.wantEquipped = false

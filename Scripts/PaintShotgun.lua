@@ -371,7 +371,7 @@ function PaintShotgun.client_onUpdate( self, dt )
 end
 
 function PaintShotgun.client_onEquip( self, animate )
-	self.network:sendToServer("sv_equip", true) --Paintball
+	self.network:sendToServer("sv_equip", {player = self.tool:getOwner(), status = true}) --Paintball
 	
 	if animate then
 		sm.audio.play( "PotatoRifle - Equip", self.tool:getPosition() )
@@ -405,7 +405,7 @@ function PaintShotgun.client_onEquip( self, animate )
 end
 
 function PaintShotgun.client_onUnequip( self, animate )
-	self.network:sendToServer("sv_equip", false) --Paintball
+	self.network:sendToServer("sv_equip", {player = self.tool:getOwner(), status = false}) --Paintball
 
 	self.wantEquipped = false
 	self.equipped = false

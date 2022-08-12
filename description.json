@@ -1,7 +1,7 @@
 {
    "allow_add_mods" : true,
    "custom_icons" : false,
-   "description" : "This mod doesn't have a description",
+   "description" : "[h1]This mod adds paint guns and cannons so you can have fun painting stuff or playing PVP[/h1]\r\nFeatures:[list]\r\n[*]All spudguns as paintguns (press Q to change color)\r\n[*]Crouch to swim in your own paint and even climb walls\r\n[*]Mountable paintgun\r\n[*]PVP game manager to enable pvp\r\n[*]Turf Wars battle mode (paint most blocks to win)\r\n[/list]\r\n\r\nPlease note the mod has quite a few bugs, and you might need to re-equip guns, re-place the game manager, or re-join your world.\r\n\r\n[quote]\r\n[h1]© NO Copyright[/h1]\r\nI make mods for the community to enjoy! Therefore feel free to [b]copy anything[/b] from this mod. No credit necessary, but always appreciated!\r\n[/quote]",
    "fileId" : 2828972513,
    "localId" : "33cbb2c0-d285-408d-a800-aace67779433",
    "name" : "ScrapToon Paintball",

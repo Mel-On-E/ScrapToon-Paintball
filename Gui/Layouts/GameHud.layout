@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<MyGUI type="Layout" version="3.2.0">
+        <Widget type="TextBox" skin="TextBox" name="Time" position_real="0.805 0.0 0.1 0.15">
+            <Property key="Caption" value="69:69" />
+            <Property key="FontName" value="SM_NumberHuge" />
+            <Property key="TextColour" value="1 1 1" />
+            <Property key="TextAlign" value="Right Bottom" />
+        </Widget>
+        <Widget type="ImageBox" skin="ImageBox" position_real="0.91 0.1075 0.0225 0.04">
+            <Property key="ImageTexture" value="$CONTENT_33cbb2c0-d285-408d-a800-aace67779433/Gui/Images/time_icon.png" />
+        </Widget>
+    <CodeGeneratorSettings />
+</MyGUI>

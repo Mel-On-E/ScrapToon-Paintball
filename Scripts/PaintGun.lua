@@ -28,13 +28,16 @@ function PaintGun:server_onFixedUpdate(timeStep)
         local owner = self.tool:getOwner()
 		local char = owner:getCharacter()
 		local climb = false
+
+		local oldSpeed = (g_sv_players[owner.id] and g_sv_players[owner.id].speed) or 1
+		local newSpeed = 1
 		
 		if g_sv_players[owner.id] and g_sv_players[owner.id].equipped then
+			--print(owner.id)
 			local pos = char:getWorldPosition() - sm.vec3.new(0,0,char:getHeight())
 			local valid, result = sm.physics.spherecast(pos + sm.vec3.new(0,0,0.25), pos + sm.vec3.new(0,0,1.1), 0.5, nil, sm.physics.filter.staticBody + sm.physics.filter.dynamicBody)
 			
-			local oldSpeed = g_sv_players[owner.id].speed
-			local newSpeed = 1
+			
 
 			if valid then
 				local shape = result:getShape()
@@ -47,16 +50,11 @@ function PaintGun:server_onFixedUpdate(timeStep)
 				elseif sm.item.getShapeDefaultColor(shape.uuid) ~= shape.color then
 					newSpeed = paintSlowFactor
 
-					if g_sv_players[owner.id].paintDamageCooldown + paintDamageTicks < sm.game.getCurrentTick() then
+					if g_gameManager and g_sv_players[owner.id].paintDamageCooldown + paintDamageTicks < sm.game.getCurrentTick() then
 						sm.event.sendToInteractable(g_gameManager.interactable, "sv_dmg", {id = owner.id, dmg = paintDamage, respawnColor = g_sv_players[owner.id].color})
 						g_sv_players[owner.id].paintDamageCooldown = sm.game.getCurrentTick()
 					end
 				end
-			end
-
-			if newSpeed ~= oldSpeed then
-				g_sv_players[owner.id].speed = newSpeed
-				self.network:sendToClient(owner, "cl_set_speed", newSpeed)
 			end
 		end
 		
@@ -64,6 +62,12 @@ function PaintGun:server_onFixedUpdate(timeStep)
 			char:setClimbing(true)
 		elseif char:isClimbing() then
 			char:setClimbing(false)
+		end
+
+		if newSpeed ~= oldSpeed then
+			g_sv_players[owner.id].speed = newSpeed
+			self.network:sendToClient(owner, "cl_set_speed", newSpeed)
+			owner.character.publicData.waterMovementSpeedFraction = newSpeed
 		end
     end
 
@@ -240,8 +244,8 @@ function PaintGun:sv_set_color(color, player)
 	self.network:sendToClients("cl_set_name_tags", g_sv_players)
 end
 
-function PaintGun:sv_equip(status, player)
-	g_sv_players[player.id].equipped = status
+function PaintGun:sv_equip(params)
+	g_sv_players[params.player.id].equipped = params.status
 end
 
 function PaintGun:cl_onCreate()
@@ -263,8 +267,12 @@ function PaintGun:cl_onUpdate(dt)
 		ball.dir = dir
 	end
 
-	if self == g_cl_PaintGun then
-		sm.localPlayer.getPlayer().character.movementSpeedFraction = g_cl_PaintGun.speed
+	if self == g_cl_PaintGun and sm.localPlayer.getPlayer().character then
+		if sm.isHost then
+		 	sm.localPlayer.getPlayer().character.movementSpeedFraction = g_cl_PaintGun.speed
+		else
+			sm.localPlayer.getPlayer().character.clientPublicData.waterMovementSpeedFraction = g_cl_PaintGun.speed
+		end
 	end
 end
 

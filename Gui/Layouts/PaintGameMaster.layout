@@ -16,7 +16,7 @@
                     <Property key="TextShadow" value="true"/>
                 </Widget>
                 <Widget type="TextBox" skin="TextBox" position_real="0.05 0.05 1 1" align="Left VStretch" name="BlueprintInfo">
-                    <Property key="Caption" value="Paint as many parts as\npossible!"/>
+                    <Property key="Caption" value= "#999999Paint as many parts as\npossible!\n\nCounts all parts on the\ncreation the manager is\nplaced on"/>
                     <Property key="TextAlign" value="Left"/>
                     <Property key="TextShadow" value="true"/>
                     <Property key="FontName" value="SM_ItemTitle"/>

@@ -1,1 +1,26 @@
-{}
+{
+    "a67af020-3a23-4a1b-900f-3c92aa6eacd8" : {
+        "description" : "Paint Gun with single paintball shot. Press 'Q' to change your color. Crouch to 'swim' in your own ink!",
+        "title" : "Paint Gun"
+    },
+    "e36f3a58-d81b-441f-85ba-9977c89544e0" : {
+        "description" : "Shoots multiple paintballs in a spread. Press 'Q' to change your color. Crouch to 'swim' in your own ink!",
+        "title" : "Paint Shotgun"
+    },
+    "dc5a6e97-d34f-455a-900a-707074233140" : {
+        "description" : "Shoots paintballs in a rapid fire. Press 'Q' to change your color. Crouch to 'swim' in your own ink!",
+        "title" : "Paintling Gun"
+    },
+    "415fe77c-5687-49dd-8175-65f2dd26d44a" : {
+        "description" : "Connect it to a trigger to fire a single paintball projectile. Paint it to change its projectile color.",
+        "title" : "Mountable Paint Gun"
+    },
+    "69da9e47-1ad4-44a2-a766-09aa795f25e3" : {
+        "description" : "Place it down to enable pvp. Interact with it to start various game modes.",
+        "title" : "Paintball Manager"
+    },
+    "92587d7f-0d69-4e42-8936-d53cf26002bb" : {
+        "description" : "Sets the respawn point for a team color for paintball pvp.",
+        "title" : "Paintball Spawn Point"
+    }
+}

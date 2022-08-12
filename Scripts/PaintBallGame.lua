@@ -17,7 +17,8 @@ function PaintBallGame:server_onCreate()
         g_gameManager.game = {
             mode = "Turf Wars",
             start = false,
-            settings = { time = 5 }
+            settings = { time = 5 },
+            status = {}
         }
         self.network:sendToClients("cl_init", g_gameManager.game)
     else
@@ -45,25 +46,117 @@ function PaintBallGame:server_onFixedUpdate()
             local yaw = 0
             local pitch = 0       
 
-            for _, spawn in pairs(g_spawns) do
-                if spawn.color == respawn.color then
-                    spawnPosition = spawn.worldPosition + spawn:getAt() * 0.825
-                    local spawnDirection = -spawn:getUp()
-                    pitch = math.asin( spawnDirection.z )
-                    yaw = math.atan2( spawnDirection.x, -spawnDirection.y )
+            if g_spawns then
+                for _, spawn in pairs(g_spawns) do
+                    if spawn.color == respawn.color then
+                        spawnPosition = spawn.worldPosition + spawn:getAt() * 0.825
+                        local spawnDirection = -spawn:getUp()
+                        pitch = math.asin( spawnDirection.z )
+                        yaw = math.atan2( spawnDirection.x, -spawnDirection.y )
+                    end
                 end
             end
 
-            local newChar = sm.character.createCharacter( respawn.player, respawn.player:getCharacter():getWorld(), spawnPosition, yaw, pitch )
+            if not respawn.game or spawnPosition ~= sm.vec3.one() then
+                local newChar = sm.character.createCharacter( respawn.player, respawn.player:getCharacter():getWorld(), spawnPosition, yaw, pitch )
 
-            respawn.player:setCharacter(newChar)
-            g_gameManager.players[respawn.player.id].health = maxHealth
-            self.network:sendToClient(respawn.player, "cl_init", g_gameManager.game)
-            self.network:sendToClients("cl_set_name_tags", g_sv_players)
-            sm.effect.playEffect( "Characterspawner - Activate", spawnPosition )
+                respawn.player:setCharacter(newChar)
+                g_gameManager.players[respawn.player.id].health = maxHealth
+                self.network:sendToClient(respawn.player, "cl_init", g_gameManager.game)
+                self.network:sendToClients("cl_set_name_tags", g_sv_players)
+                sm.effect.playEffect( "Characterspawner - Activate", spawnPosition )
+            end
 
             self.respawns[k] = nil
         end
+    end
+
+    if g_gameManager.game.status.startDelay then
+        if sm.game.getCurrentTick() % 40 == 0 then
+            g_gameManager.game.status.startDelay = g_gameManager.game.status.startDelay - 1
+            if g_gameManager.game.status.startDelay == 0 then
+                g_gameManager.game.status.startDelay = nil
+
+                for _, player in pairs(sm.player.getAllPlayers()) do
+                    self.respawns[#self.respawns+1] = {player = player, time = sm.game.getCurrentTick(), color = g_sv_players[player.id].color, game = true}
+                end
+
+                for _, shape in pairs(self.shape:getBody():getCreationShapes()) do
+                    if shape.color ~= sm.item.getShapeDefaultColor(shape.uuid) then
+                        if shape.uuid ~= sm.uuid.new("92587d7f-0d69-4e42-8936-d53cf26002bb") then --spawn
+                            shape:setColor(sm.item.getShapeDefaultColor(shape.uuid))
+                        end
+                    end
+                end
+
+                g_gameManager.game.status.endTick = g_gameManager.game.status.time + sm.game.getCurrentTick()
+
+                self.network:sendToClients("cl_game_start", g_gameManager.game.status.time)
+            else
+                self.network:sendToClients("cl_alert", g_gameManager.game.mode .. " starts in " .. tostring(g_gameManager.game.status.startDelay))
+            end
+        end
+    end
+    if g_gameManager.game.status.endTick and g_gameManager.game.status.endTick <= sm.game.getCurrentTick() then
+        self.network:sendToClients("cl_alert", "Time's over!")
+
+        local colors = {}
+        local colorCount = 0
+        for _, shape in pairs(self.shape:getBody():getCreationShapes()) do
+            if shape.color ~= sm.item.getShapeDefaultColor(shape.uuid) then
+                if shape.uuid ~= sm.uuid.new("92587d7f-0d69-4e42-8936-d53cf26002bb") then --spawn
+                    local color = "#" .. string.sub(shape.color:getHexStr(), 1, 6)
+                    local size = shape:getBoundingBox()*4
+                    local paint = (size.x*size.y*size.z) - (size.x-1)*(size.y-1)*(size.z-1)
+                    if not shape.isBlock then
+                        paint = math.ceil(math.sqrt(paint))
+                    end
+                    if colors[color] then
+                        colors[color] = colors[color] + paint
+                    else
+                        colors[color] = paint
+                        colorCount = colorCount + 1
+                    end
+                end
+            end
+        end
+
+        local sortedColors = {}
+        for i=1, colorCount do
+            local highest = 0
+            local highestColor
+            for color, score in pairs(colors) do
+                if score >= highest then
+                    highest = score
+                    highestColor = color
+                end
+            end
+            sortedColors[#sortedColors+1] = {color = highestColor, score = highest}
+            colors[highestColor] = nil
+        end
+
+        local resultMsg = "Game ended!"
+        for pos, result in ipairs(sortedColors) do
+            resultMsg = resultMsg .. "\n" .. tostring(pos) .. ". " .. result.color .. "Team #ffffff(" .. tostring(result.score) .. ")"
+        end
+        self.network:sendToClients("cl_msg", resultMsg)
+
+        if #sortedColors > 0 then
+            local winColor = sm.color.new(string.sub(sortedColors[1].color, 1) .. "ff")
+            for _, player in pairs(g_sv_players) do
+                local msg = "#ff0000You Lost!"
+                if player.color == winColor then
+                    msg = "#00ff00You Won!"
+                end
+                self.network:sendToClient(player.player, "cl_alert", msg)
+            end
+        end
+        
+        g_gameManager.game.status = {}
+        g_gameManager.game.start = false
+
+        self.network:sendToClients("cl_update_game", g_gameManager.game)
+        self.network:sendToClients("cl_update_gui")
     end
 end
 
@@ -110,6 +203,21 @@ function PaintBallGame:sv_change_settings(params)
     self.network:sendToClients("cl_update_game", g_gameManager.game)
 end
 
+function PaintBallGame:sv_start_game()
+    g_gameManager.game.start = not g_gameManager.game.start
+    
+    if g_gameManager.game.start then
+        g_gameManager.game.status = {}
+        g_gameManager.game.status.time = g_gameManager.game.settings.time*60*40--ticks
+        g_gameManager.game.status.startDelay = 10+1 --seconds
+    else
+        self.network:sendToClients("cl_alert", "#ff0000" .. g_gameManager.game.mode .. " has been canceled")
+        g_gameManager.game.status = {}
+    end
+
+    self.network:sendToClients("cl_update_game", g_gameManager.game)
+end
+
 function PaintBallGame:client_onCreate()
     if not g_paintHud then
 		g_paintHud = sm.gui.createSurvivalHudGui()
@@ -123,10 +231,18 @@ function PaintBallGame:client_onCreate()
 end
 
 function PaintBallGame:cl_init(game)
+    local time
+    if g_cl_gameManager and g_cl_gameManager.cl_game.status.time then
+        time = g_cl_gameManager.cl_game.status.time
+    end
+
     self.cl = {}
     self.cl.health = 100
     g_cl_gameManager = self
-    g_cl_gameManager.cl_game = g_gameManager.game
+    g_cl_gameManager.cl_game = game
+    if time then
+        g_cl_gameManager.cl_game.status.time = time
+    end
     g_paint = 100
     g_paintHud:setSliderData( "Food", maxHealth+1, g_paint )
     self.death = nil
@@ -158,6 +274,21 @@ function PaintBallGame:client_onFixedUpdate()
     if self.death and sm.game.getCurrentTick()%40 == 0 then
         self.death = math.max(self.death-1, 0)
     end
+
+    if self.gameHud and g_cl_gameManager.cl_game.status.time then
+        g_cl_gameManager.cl_game.status.time = math.max(0, g_cl_gameManager.cl_game.status.time - 1)
+        local ticksLeft = g_cl_gameManager.cl_game.status.time
+        local mins = tostring(math.floor((ticksLeft/40+1)/60))
+        local secs = tostring(math.ceil(ticksLeft/40) % 60)
+        if #secs == 1 then
+            secs = "0" .. secs
+        end
+        local lastMinute = ""
+        if mins == "0" then
+            lastMinute = "#ff4444"
+        end
+        self.gameHud:setText("Time", lastMinute .. mins .. ":" .. secs)
+    end
 end
 
 function PaintBallGame:client_onUpdate()
@@ -165,7 +296,7 @@ function PaintBallGame:client_onUpdate()
         sm.gui.setInteractionText("Respawn in " .. tostring(self.death))
     end
 
-    if g_paint < 99 then
+    if g_paint and g_paint < 99 then
         sm.gui.setProgressFraction(math.max(g_paint-2, 0)/100)
     end
 end
@@ -221,14 +352,21 @@ end
 
 function PaintBallGame:cl_update_game(game)
     g_cl_gameManager.cl_game = game
-    if self.gui:isActive() then
+    if self.gui and self.gui:isActive() then
         self:cl_update_gui()
     end
 end
 
 function PaintBallGame:cl_update_gui()
-    self.gui:setText("Time", tostring(g_cl_gameManager.cl_game.settings.time) .. "min")
-    self.gui:setText("Start", g_cl_gameManager.cl_game.start and "End Game" or "Start Game")
+    if self.gui then
+        self.gui:setText("Time", tostring(g_cl_gameManager.cl_game.settings.time) .. "min")
+        self.gui:setText("Start", g_cl_gameManager.cl_game.start and "End Game" or "Start Game")
+    end
+
+    if self.gameHud and not g_cl_gameManager.cl_game.start then
+        self.gameHud:destroy()
+        self.gameHud = nil
+    end
 end
 
 function PaintBallGame:cl_time_up()
@@ -239,13 +377,24 @@ function PaintBallGame:cl_time_down()
     self.network:sendToServer("sv_change_settings", {time = g_cl_gameManager.cl_game.settings.time - 1})
 end
 
+function PaintBallGame:cl_start_game()
+    self.network:sendToServer("sv_start_game")
+end
+
+function PaintBallGame:cl_game_start()
+    self.gameHud = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/Layouts/GameHud.layout", false,
+    { isHud = true, isInteractive = false, needsCursor = false })
+    self.gameHud:open()
+end
+
+function PaintBallGame:cl_alert(msg)
+    sm.gui.displayAlertText(msg, 2)
+end
 
 
---TODO Turf wars game mode
---add time back
---make settings work
---why am I writing this down? I think I know what to do
 
+--fast ink when someone else dead
+--balance guns
 
 --TODO Delete projectiles after timelimit
 --TODO Add some crouch shoot cooldown
