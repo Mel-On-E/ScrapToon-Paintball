@@ -465,26 +465,22 @@ function PaintGun:cl_onUpdate(dt)
 			move_dir = sm.vec3.new(0, 0, 0)
 			cam_dir = sm.camera.getDirection() * sm.vec3.new(1, 1, 0) * 0.05
 			base_shape_rotation = self.swim_shape:getWorldRotation()
-			local move_factor = 2
 
 			if m_dir:length() > 0 then
 				m_dir = m_dir:normalize()
 				self.reference_pos = CameraPosition
-				move_dir = cam_dir
 				front_move = sm.vec3.new(0, 0, 0)
 				-- move dir
+				move_dir = cam_dir
 				if m_dir.y < -0.5 then
-					move_factor = 2
 					front_move = -cam_dir
 				elseif m_dir.y > 0.5 then
-					move_factor = 0.5
 					front_move = cam_dir
 				end
 				if m_dir.x > 0.5 then
-					move_factor = 1
 					move_dir = (sm.vec3.getRotation(sm.vec3.new(1, 0, 0), sm.vec3.new(0, -1, 0)) * move_dir) + front_move
 				elseif m_dir.x < -0.5 then
-					move_factor = 1
+					move_factor = 0.5
 					move_dir = (sm.vec3.getRotation(sm.vec3.new(1, 0, 0), sm.vec3.new(0, 1, 0)) * move_dir) + front_move
 				else
 					move_dir = front_move
@@ -502,21 +498,22 @@ function PaintGun:cl_onUpdate(dt)
 						g_sv_players[char:getPlayer().id].color
 					)
 				end
-				--if self.audio == nil or self.audio:isDone() then
-				self.audio = sm.effect.createEffect("Tree - LeafRattle")
-				self.audio:setScale(sm.vec3.new(1, 1, 1))
+				if self.audio == nil or sm.game.getCurrentTick() % 20 == 0 then
+					self.audio = sm.effect.createEffect("Mechanic - StatusUnderwater")
+					self.audio:setScale(sm.vec3.new(1, 1, 1))
+					self.audio:setAutoPlay(false)
+					self.audio:start()
+				end
 				self.audio:setRotation(base_shape_rotation)
 				self.audio:setPosition(self.reference_pos)
-				self.audio:setAutoPlay(false)
-				self.audio:start()
-				--end
 				if self.effect_size < 9 then
 					self.effect_size = self.effect_size + 0.05
 				end
 			else
 				self.effect_size = 1
 			end
-			local move_to = self.reference_pos + move_dir + self.swim_shape.body:getVelocity() * dt * move_factor
+			move_dir = sm.vec3.new(math.floor(move_dir.x * 100), math.floor(move_dir.y * 100), math.floor(move_dir.z * 100)) / 100
+			local move_to = self.reference_pos + move_dir + self.swim_shape.body:getVelocity() * dt
 			local valid, result = sm.physics.raycast(move_to + sm.vec3.new(0, 0, 20), move_to + sm.vec3.new(0, 0, -5))
 			if valid and result:getShape() ~= nil then
 				if result.pointWorld:length() > 0 then
@@ -531,11 +528,12 @@ function PaintGun:cl_onUpdate(dt)
 			end
 			sm.camera.setPosition(move_to)
 			self.camera_reset = false
-			self.reference_pos = sm.camera.getPosition()
+			self.reference_pos = move_to
 			self.last_reference_pos = self.reference_pos
 		elseif self.camera_reset == false and self.last_reference_pos ~= nil then
 			HAS_SWIM_INIT = false
 			self.swim_shape = nil
+			self.audio = nil
 			eff = sm.effect.createEffect("WaterProjectile - Hit")
 			eff:setParameter("color", sm.color.new(1, 0, 0, 1))
 			eff:setScale(sm.vec3.new(1, 1, 1))
