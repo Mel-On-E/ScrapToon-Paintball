@@ -17,7 +17,7 @@
          "scripted" : {
             "classname" : "MountedPaintGun",
             "data" : {
-               "paintRadius" : 0.6670,
+               "paintRadius" : 0.25,
                "singleBlock": true
             },
             "filename" : "$CONTENT_DATA/Scripts/MountedPaintGun.lua"
