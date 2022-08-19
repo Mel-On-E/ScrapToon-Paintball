@@ -512,7 +512,6 @@ function PaintGun:cl_onUpdate(dt)
 			else
 				self.effect_size = 1
 			end
-			move_dir = sm.vec3.new(math.floor(move_dir.x * 100), math.floor(move_dir.y * 100), math.floor(move_dir.z * 100)) / 100
 			local move_to = self.reference_pos + move_dir + self.swim_shape.body:getVelocity() * dt
 			local valid, result = sm.physics.raycast(move_to + sm.vec3.new(0, 0, 20), move_to + sm.vec3.new(0, 0, -5))
 			if valid and result:getShape() ~= nil then
