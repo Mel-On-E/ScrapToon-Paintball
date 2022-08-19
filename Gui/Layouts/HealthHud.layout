@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="Widget" skin="PanelEmpty" position_real="0 0 1 1" name="MAIN">
+        <Widget type="Widget" skin="HudBackgroundLarge" position_real="0.1 0.025 0.8 0.05" name="Team1_Bar">
+            <Widget type="ImageBox" skin="ImageBox" position_real="0.00976563 0.166667 0.976563 0.666667" name="Team1">
+                <Property key="ImageTexture" value="$CONTENT_33cbb2c0-d285-408d-a800-aace67779433/Gui/Images/ImageCluster/Colors/222222/222222-left-50.png"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position_real="0.0123698 0.166667 0.976563 0.666667" name="Team2">
+                <Property key="ImageTexture" value="$CONTENT_33cbb2c0-d285-408d-a800-aace67779433/Gui/Images/ImageCluster/Colors/eeeeee/eeeeee-right-50.png"/>
+            </Widget>
+        </Widget>
+        <Widget type="Widget" skin="PanelEmpty" position_real="0 0.869444 0.260417 0.219444">
+            <Widget type="Widget" skin="PanelEmpty" position_real="0 0 1 1" name="StatusPanel">
+                <Property key="NeedKey" value="false"/>
+                <Property key="NeedMouse" value="false"/>
+                <Widget type="Widget" skin="HudBackgroundLarge" position_real="0.12 0 0.592 0.232068" name="HealthBar">
+                    <Widget type="ImageBox" skin="ImageBox" position_real="0.162162 0.181818 0.783784 0.6" name="Health">
+                        <Property key="ImageTexture" value="$CONTENT_33cbb2c0-d285-408d-a800-aace67779433/Gui/Images/ImageCluster/Health/health-image-100.png"/>
+                    </Widget>
+                    <Widget type="ImageBox" skin="ImageBox" position_real="0.0506757 0.272727 0.0844595 0.454545" name="HealthIcon">
+                        <Property key="ImageTexture" value="gui_icon_hud_health.png"/>
+                    </Widget>
+                </Widget>
+                <Widget type="Widget" skin="HudBackgroundSmall" position_real="0.12 0.274262 0.592 0.135021" name="WaterBar">
+                    <Widget type="ImageBox" skin="ImageBox" position_real="0.152027 0.21875 0.800676 0.5" name="Water">
+                        <Property key="ImageTexture" value="$CONTENT_33cbb2c0-d285-408d-a800-aace67779433/Gui/Images/ImageCluster/Colors/eeeeee/eeeeee-left-100.png"/>
+                    </Widget>
+                    <Widget type="ImageBox" skin="ImageBox" position_real="0.0506757 0.15625 0.0641892 0.6875" name="WaterIcon">
+                        <Property key="ImageTexture" value="gui_icon_hud_water.png"/>
+                    </Widget>
+                </Widget>
+            </Widget>
+        </Widget>
+    </Widget>
+    <CodeGeneratorSettings/>
+</MyGUI>

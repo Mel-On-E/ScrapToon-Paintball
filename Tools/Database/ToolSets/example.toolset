@@ -6,8 +6,9 @@
 			"previewRotation": [ 1, 0, 0, 0, 0, -1, 0, 1, 0 ],
 			"script": { "file": "$CONTENT_DATA/Scripts/PaintRifle.lua", 
 						"class": "PaintRifle",
-						"data": { "paintRadius": 0.667,
-								  "paintCost": 5.2 } 
+						"data": { "paintRadius": 0.75,
+								  "paintCost": 4.5,
+								  "singleBlock": false } 
 			}
 		},
 		{
@@ -16,8 +17,9 @@
 			"previewRotation": [ 1, 0, 0, 0, 0, -1, 0, 1, 0 ],
 			"script": { "file": "$CONTENT_DATA/Scripts/PaintShotgun.lua", 
 						"class": "PaintShotgun",
-						"data": { "paintRadius": 0.25,
-								  "paintCost": 3.2 } 
+						"data": { "paintRadius": 0.45,
+								  "paintCost": 3,
+								  "singleBlock": false } 
 			}
 		},
 		{
@@ -26,8 +28,9 @@
 			"previewRotation": [ 1, 0, 0, 0, 0, -1, 0, 1, 0 ],
 			"script": { "file": "$CONTENT_DATA/Scripts/PaintGatling.lua", 
 						"class": "PaintGatling",
-						"data": { "paintRadius": 0.33,
-								  "paintCost": 1.4 } 
+						"data": { "paintRadius": 0.20,
+								  "paintCost": 1.5,
+								  "singleBlock": false } 
 			}
 		}
 	]

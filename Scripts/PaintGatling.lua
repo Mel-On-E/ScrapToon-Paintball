@@ -640,7 +640,7 @@ function PaintGatling.cl_fire( self )
 		local owner = self.tool:getOwner()
 		if owner then
 			--sm.projectile.projectileAttack( projectile_smallpotato, Damage, firePos, dir * fireMode.fireVelocity, owner, fakePosition, fakePositionSelf )
-			self.network:sendToServer("sv_fire_ball", {pos = fakePosition, dir = dir * fireMode.fireVelocity, dmg = Damage})--PaintBall
+			self.network:sendToServer("sv_fire_ball", {pos = sm.localPlayer.getPlayer():getCharacter():getWorldPosition() + sm.vec3.new(0,0,0.5), dir = dir * fireMode.fireVelocity, dmg = Damage})--PaintBall
 		end
 		
 		-- Timers
